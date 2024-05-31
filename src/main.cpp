@@ -2,6 +2,8 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
+// hello window
+
 // we should also define a callback function for if/when the user changes the width/height of the window
 // GLFW can do this for us
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {

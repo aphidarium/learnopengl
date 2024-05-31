@@ -2,12 +2,17 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
-// hello window
+// hello input
 
 // we should also define a callback function for if/when the user changes the width/height of the window
 // GLFW can do this for us
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+void processInput(GLFWwindow* window) {
+    if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
+        glfwSetWindowShouldClose(window, true);
 }
 
 int main() {
@@ -37,7 +42,12 @@ int main() {
     // we just need to tell GLFW we want it to use this function
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    while(!glfwWindowShouldClose(window)) { // self-explanatory
+    while(!glfwWindowShouldClose(window)) { // self-explanatory - this is our render loop :)
+        processInput(window);
+
+        glClearColor(1.0f, 0.0f, 1.0f, 1.0f); // state setting function
+        glClear(GL_COLOR_BUFFER_BIT);         // state using function
+
         glfwSwapBuffers(window);            // double buffered rendering
         glfwPollEvents();                   // check for keyboard, mouse inputs etc.
     }

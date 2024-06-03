@@ -9,7 +9,7 @@ out vec3 ourColor;
 out vec2 texCoords;
 
 void main() {
-    gl_Position = vec4(aPos, 1.0f) * transform;
+    gl_Position = transform * vec4(aPos, 1.0f);
     ourColor = aColor;
     texCoords = aTexCoords;
 }

@@ -161,14 +161,13 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture2);
 
         glm::mat4 trans = glm::mat4(1.0f);
-        trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-        trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
         trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));
 
         shader.use();
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(trans));
-        // shader.setFloat("mixAmount", sin(glfwGetTime()));
-        shader.setFloat("mixAmount", .5f);
+        shader.setFloat("mixAmount", sin(glfwGetTime()));
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 

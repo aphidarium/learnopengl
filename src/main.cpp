@@ -12,14 +12,27 @@
 
 #include "shader.h"
 
+glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront    = glm::vec3(0.0f, 0.0f, -1.0f);
+
 // we should also define a callback function for if/when the user changes the width/height of the window
 // GLFW can do this for us
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+#define CAMERA_SPEED 0.05f
+#define CAMERA_UP    glm::vec3(0.0f, 1.0f, 0.0f)
 void processInput(GLFWwindow* window) {
-    if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
+    if (GLFW_PRESS ==glfwGetKey(window, GLFW_KEY_W))
+        cameraPosition += cameraFront * CAMERA_SPEED;
+    else if (glfwGetKey(window, GLFW_KEY_S))
+        cameraPosition -= cameraFront * CAMERA_SPEED;
+    else if (glfwGetKey(window, GLFW_KEY_A))
+        cameraPosition -= glm::normalize(glm::cross(cameraFront, CAMERA_UP)) * CAMERA_SPEED;
+    else if (glfwGetKey(window, GLFW_KEY_D))
+        cameraPosition += glm::normalize(glm::cross(cameraFront, CAMERA_UP)) * CAMERA_SPEED;
+    else if (glfwGetKey(window, GLFW_KEY_ESCAPE))
         glfwSetWindowShouldClose(window, true);
 }
 
@@ -186,12 +199,6 @@ int main() {
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
 
-    // glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
-    // glm::vec3 cameraTarget = glm::vec3(0);
-    // glm::vec3 cameraDirection = cameraPosition - cameraTarget;
-    // glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0, 1, 0), cameraDirection));
-    // glm::vec3 cameraUp = glm::cross(cameraRight, cameraDirection);
-
     while(!glfwWindowShouldClose(window)) { // self-explanatory - this is our render loop :)
         processInput(window);
 
@@ -211,12 +218,9 @@ int main() {
 
 
 
-        #define RADIUS 10
-        float camX = sin(glfwGetTime()) * RADIUS;
-        float camZ = cos(glfwGetTime()) * RADIUS;
-        glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0f, camZ),  // position
-                                     glm::vec3(0.0f, 0.0f, 0.0f),  // target
-                                     glm::vec3(0.0f, 1.0f, 0.0f)); // up
+        glm::mat4 view = glm::lookAt(cameraPosition,  // position
+                                     cameraPosition + cameraFront,  // target
+                                     CAMERA_UP); // up
 
         int w = 0, h = 0;
         glfwGetWindowSize(window, &w, &h);

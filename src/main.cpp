@@ -115,12 +115,7 @@ int main() {
         glm::vec3(-1.3f, 1.0f, -1.5f)
     };
 
-    unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO, VAO;
 
     glGenVertexArrays(1, &VAO); // generate our VAO
     glGenBuffers(1, &VBO);      // generate our VBO
@@ -191,6 +186,12 @@ int main() {
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
 
+    // glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
+    // glm::vec3 cameraTarget = glm::vec3(0);
+    // glm::vec3 cameraDirection = cameraPosition - cameraTarget;
+    // glm::vec3 cameraRight = glm::normalize(glm::cross(glm::vec3(0, 1, 0), cameraDirection));
+    // glm::vec3 cameraUp = glm::cross(cameraRight, cameraDirection);
+
     while(!glfwWindowShouldClose(window)) { // self-explanatory - this is our render loop :)
         processInput(window);
 
@@ -205,21 +206,30 @@ int main() {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        // glm::mat4 view = glm::mat4(1.0f);
+        // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+
+
+        #define RADIUS 10
+        float camX = sin(glfwGetTime()) * RADIUS;
+        float camZ = cos(glfwGetTime()) * RADIUS;
+        glm::mat4 view = glm::lookAt(glm::vec3(camX, 0.0f, camZ),  // position
+                                     glm::vec3(0.0f, 0.0f, 0.0f),  // target
+                                     glm::vec3(0.0f, 1.0f, 0.0f)); // up
 
         int w = 0, h = 0;
         glfwGetWindowSize(window, &w, &h);
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), 16.0f/9.0f, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(45.0f), (float)(w/h), 0.1f, 100.0f);
 
         glm::mat4 transform = glm::mat4(1.0f);
         transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 
         shader.use();
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"),       1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, glm::value_ptr(transform));
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"),  1, GL_FALSE, glm::value_ptr(transform));
         shader.setFloat("mixAmount", sin(glfwGetTime()));
         glBindVertexArray(VAO);
 
@@ -238,7 +248,6 @@ int main() {
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;

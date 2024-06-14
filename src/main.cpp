@@ -12,6 +12,10 @@
 
 #include "shader.h"
 
+#define CAMERA_SPEED      0.05f
+#define CAMERA_UP         glm::vec3(0.0f, 1.0f, 0.0f)
+#define MOUSE_SENSITIVITY 0.5f
+
 glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront    = glm::vec3(0.0f, 0.0f, -1.0f);
 
@@ -21,25 +25,20 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-#define CAMERA_SPEED 0.05f
-#define CAMERA_UP    glm::vec3(0.0f, 1.0f, 0.0f)
 void processInput(GLFWwindow* window) {
-    if (GLFW_PRESS ==glfwGetKey(window, GLFW_KEY_W))
+    if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_W))
         cameraPosition += cameraFront * CAMERA_SPEED;
-    else if (glfwGetKey(window, GLFW_KEY_S))
+    else if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_S))
         cameraPosition -= cameraFront * CAMERA_SPEED;
-    else if (glfwGetKey(window, GLFW_KEY_A))
+    else if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_A))
         cameraPosition -= glm::normalize(glm::cross(cameraFront, CAMERA_UP)) * CAMERA_SPEED;
-    else if (glfwGetKey(window, GLFW_KEY_D))
+    else if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_D))
         cameraPosition += glm::normalize(glm::cross(cameraFront, CAMERA_UP)) * CAMERA_SPEED;
-    else if (glfwGetKey(window, GLFW_KEY_ESCAPE))
+    else if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
         glfwSetWindowShouldClose(window, true);
 }
 
 int main() {
-
-    // ------------------------------------------------------------------------------------------------ glfw setup
-
     glfwInit(); // initialise GLFW
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // configure with `glfwWindowHint`
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -53,17 +52,11 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
-    // ------------------------------------------------------------------------------------------------ glad setup
-
     // GLAD is used for locating OpenGL function pointers, so before we start using OpenGL directly we initialise it here
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialise GLAD" << std::endl;
         return -1;
     }
-
-    // ------------------------------------------------------------------------------------------------ shader setup
-
-    Shader shader = Shader("/home/alfr/projects/code/cpp/opengl/src/shaders/default.vs", "/home/alfr/projects/code/cpp/opengl/src/shaders/default.fs");
 
     // ------------------------------------------------------------------------------------------------ vertex data & buffers
 
@@ -138,7 +131,6 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(verts), verts, GL_STATIC_DRAW);
 
-    // for sending our position to the vertex shader
     //                    location, size, type,     normalised, stride,            pointer
     glVertexAttribPointer(0,        3,    GL_FLOAT, GL_FALSE,   5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -150,50 +142,38 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0); // unbind our VBO
     glBindVertexArray(0); // unbind our VAO
 
+    // stbi_set_flip_vertically_on_load(true);
+    auto loadImage = [](std::string file, int format, uint texture){
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        int width, height, nrChannels;
+        unsigned char* data = stbi_load(file.c_str(), &width, &height, &nrChannels, 0);
+
+        if (data) {
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        } else {
+            std::cout << "Failed to load image '" << file << "'" << std::endl;
+        }
+
+        stbi_image_free(data);
+    };
+
     unsigned int texture1, texture2;
     glGenTextures(1, &texture1);
     glGenTextures(1, &texture2);
 
-    glBindTexture(GL_TEXTURE_2D, texture1);
+    loadImage("/home/alfr/projects/code/cpp/opengl/awesomeface.png", GL_RGBA, texture1);
+    loadImage("/home/alfr/projects/code/cpp/opengl/alfie.jpg", GL_RGB, texture2);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    int width, height, nrChannels;
-    // stbi_set_flip_vertically_on_load(true);
-
-    unsigned char* data = stbi_load("/home/alfr/projects/code/cpp/opengl/alfie.jpg", &width, &height, &nrChannels, 0);
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load image" << std::endl;
-    }
-
-    glBindTexture(GL_TEXTURE_2D, texture2);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    data = stbi_load("/home/alfr/projects/code/cpp/opengl/awesomeface.png", &width, &height, &nrChannels, 0);
-
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load image" << std::endl;
-    }
-
-    stbi_image_free(data);
-
-    // see framebuffer_size_callback()
-    // we just need to tell GLFW we want it to use this function
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    Shader shader = Shader("/home/alfr/projects/code/cpp/opengl/src/shaders/default.vs", "/home/alfr/projects/code/cpp/opengl/src/shaders/default.fs");
 
     shader.use();
     shader.setInt("texture1", 0);
@@ -212,11 +192,6 @@ int main() {
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-        // glm::mat4 view = glm::mat4(1.0f);
-        // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-
 
         glm::mat4 view = glm::lookAt(cameraPosition,  // position
                                      cameraPosition + cameraFront,  // target

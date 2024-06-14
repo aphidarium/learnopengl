@@ -13,8 +13,8 @@ out vec4 fragColor;
 void main() {
     // fragColor = texture(ourTexture, texCoords) * vec4(ourColor, 1.0);
 
-    vec4 tex1 = texture(texture1, texCoords);
-    vec4 tex2 = texture(texture2, vec2(1.0-texCoords.x, texCoords.y));
+    //vec4 tex1 = texture(texture1, texCoords);
+    //vec4 tex2 = texture(texture2, vec2(1.0-texCoords.x, texCoords.y));
 
     vec4 col = mix(texture(texture1, texCoords), texture(texture2, vec2(-texCoords.x, texCoords.y)), mixAmount);
 

@@ -132,48 +132,48 @@ int main() {
 
     // ------------------------------------------------------------------------------------------------ vertex data & buffers
 
-    float verts[] = { // cube
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+    float verts[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
     unsigned int VBO, VAO;
@@ -192,11 +192,11 @@ int main() {
 
     // vertices
     //                    location, size, type,     normalised, stride,            pointer
-    glVertexAttribPointer(0,        3,    GL_FLOAT, GL_FALSE,   5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0,        3,    GL_FLOAT, GL_FALSE,   6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // texture coordinates
-    glVertexAttribPointer(1,        2,    GL_FLOAT, GL_FALSE,   5 * sizeof(float), (void*)(3 * sizeof(float)));
+    // normals
+    glVertexAttribPointer(1,        3,    GL_FLOAT, GL_FALSE,   6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     // unbind our VBO
@@ -231,15 +231,17 @@ int main() {
     glGenTextures(1, &texture1);
     glGenTextures(1, &texture2);
 
-    loadImage("/home/alfr/projects/code/cpp/opengl/awesomeface.png", GL_RGBA, texture1);
-    loadImage("/home/alfr/projects/code/cpp/opengl/alfie.jpg", GL_RGB, texture2);
+    loadImage("awesomeface.png", GL_RGBA, texture1);
+    loadImage("alfie.jpg",       GL_RGB,  texture2);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
 
-    Shader shader = Shader("/home/alfr/projects/code/cpp/opengl/src/shaders/default.vs", "/home/alfr/projects/code/cpp/opengl/src/shaders/default.fs");
+    Shader shader      = Shader("src/shaders/default.vert", "src/shaders/default.frag");
+    Shader litShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
+    Shader lightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
 
     shader.use();
     shader.setInt("texture1", 0);
@@ -258,22 +260,39 @@ int main() {
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 
         int w = 0, h = 0;
         glfwGetWindowSize(window, &w, &h);
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)(w/h), 0.1f, 100.0f);
 
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
+        glm::vec3 lightColor  = glm::vec3(1.0f, 1.0f, 0.6f);
+        glm::vec3 lightPos    = glm::vec3(3.6f, 0.0f, -3.6f);
+        lightPos *= glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
+        glm::vec3 objectColor = glm::vec3(0.0f, 0.1f, 1.0f);
 
-        shader.use();
-        shader.setMat4("view", view);
-        shader.setMat4("model", model);
-        shader.setMat4("projection", projection);
-        shader.setMat4("transform", transform);
-        shader.setFloat("mixAmount", sin(glfwGetTime()));
+        litShader.use();
+        litShader.setMat4("view", view);
+        litShader.setMat4("model", model);
+        litShader.setMat4("projection", projection);
+        litShader.setVec3("lightColor", lightColor);
+        litShader.setVec3("objectColor", objectColor);
+        litShader.setVec3("lightPos", lightPos);
+        litShader.setVec3("viewPos", camera.pos);
 
         glBindVertexArray(VAO);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
+
+        lightShader.use();
+        lightShader.setMat4("view", view);
+        lightShader.setMat4("model", model);
+        lightShader.setMat4("projection", projection);
+        lightShader.setVec3("lightColor", lightColor);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 

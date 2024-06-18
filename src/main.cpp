@@ -29,6 +29,7 @@ struct {
 } camera;
 
 bool _w = false, _a = false, _s = false, _d = false;
+bool phong = true;
 
 // we should also define a callback function for if/when the user changes the width/height of the window
 // GLFW can do this for us
@@ -43,6 +44,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             case GLFW_KEY_S: _s = true; break;
             case GLFW_KEY_A: _a = true; break;
             case GLFW_KEY_D: _d = true; break;
+
+            case GLFW_KEY_Q:
+                phong = !phong;
+                if (phong) {
+                    std::cout << "Using Phong lighting" << std::endl;
+                } else {
+                    std::cout << "Using Gouraud lighting" << std::endl;
+                }
+                break;
 
             case GLFW_KEY_ESCAPE:
                 if      (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
@@ -240,8 +250,15 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, texture2);
 
     Shader shader      = Shader("src/shaders/default.vert", "src/shaders/default.frag");
-    Shader litShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
-    Shader lightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
+
+    Shader gouraudLitShader   = Shader("src/shaders/gouraud/gouraud.vert", "src/shaders/gouraud/litobject.frag");
+    Shader gouraudLightShader = Shader("src/shaders/default.vert",         "src/shaders/gouraud/light.frag");
+
+    Shader phongLitShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
+    Shader phongLightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
+
+    Shader litShader   = phongLitShader;
+    Shader lightShader = phongLightShader;
 
     shader.use();
     shader.setInt("texture1", 0);
@@ -253,6 +270,14 @@ int main() {
 
         // glm::mat4 model = glm::mat4(1.0f);
         // model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        if (phong) {
+            Shader litShader   = phongLitShader;
+            Shader lightShader = phongLightShader;
+        } else {
+            Shader litShader   = gouraudLitShader;
+            Shader lightShader = gouraudLightShader;
+        }
 
         glm::mat4 view = glm::lookAt(camera.pos,  // position
                                      camera.pos + camera.front,  // target

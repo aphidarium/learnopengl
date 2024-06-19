@@ -48,9 +48,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             case GLFW_KEY_Q:
                 phong = !phong;
                 if (phong) {
-                    std::cout << "Using Phong lighting" << std::endl;
+                    std::cout << "Using Phong lighting\r" << std::endl;
                 } else {
-                    std::cout << "Using Gouraud lighting" << std::endl;
+                    std::cout << "Using Gouraud lighting\r" << std::endl;
                 }
                 break;
 
@@ -249,7 +249,7 @@ int main() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
 
-    Shader shader      = Shader("src/shaders/default.vert", "src/shaders/default.frag");
+    Shader shader = Shader("src/shaders/default.vert", "src/shaders/default.frag");
 
     Shader gouraudLitShader   = Shader("src/shaders/gouraud/gouraud.vert", "src/shaders/gouraud/litobject.frag");
     Shader gouraudLightShader = Shader("src/shaders/default.vert",         "src/shaders/gouraud/light.frag");
@@ -257,8 +257,8 @@ int main() {
     Shader phongLitShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
     Shader phongLightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
 
-    Shader litShader   = phongLitShader;
-    Shader lightShader = phongLightShader;
+    Shader litShader   = gouraudLitShader;
+    Shader lightShader = gouraudLightShader;
 
     shader.use();
     shader.setInt("texture1", 0);
@@ -268,15 +268,12 @@ int main() {
     while(!glfwWindowShouldClose(window)) { // self-explanatory - this is our render loop :)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
-        // glm::mat4 model = glm::mat4(1.0f);
-        // model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
         if (phong) {
-            Shader litShader   = phongLitShader;
-            Shader lightShader = phongLightShader;
+            litShader   = phongLitShader;
+            lightShader = phongLightShader;
         } else {
-            Shader litShader   = gouraudLitShader;
-            Shader lightShader = gouraudLightShader;
+            litShader   = gouraudLitShader;
+            lightShader = gouraudLightShader;
         }
 
         glm::mat4 view = glm::lookAt(camera.pos,  // position
@@ -285,7 +282,7 @@ int main() {
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
+        //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 
         int w = 0, h = 0;
         glfwGetWindowSize(window, &w, &h);
@@ -293,7 +290,7 @@ int main() {
 
         glm::vec3 lightColor  = glm::vec3(1.0f, 1.0f, 0.6f);
         glm::vec3 lightPos    = glm::vec3(3.6f, 0.0f, -3.6f);
-        lightPos *= glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
+//        lightPos *= glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
         glm::vec3 objectColor = glm::vec3(0.0f, 0.1f, 1.0f);
 
         litShader.use();
@@ -311,7 +308,7 @@ int main() {
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
-        model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
+        //model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
 
         lightShader.use();
         lightShader.setMat4("view", view);

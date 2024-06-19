@@ -45,15 +45,6 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             case GLFW_KEY_A: _a = true; break;
             case GLFW_KEY_D: _d = true; break;
 
-            case GLFW_KEY_Q:
-                phong = !phong;
-                if (phong) {
-                    std::cout << "Using Phong lighting\r" << std::endl;
-                } else {
-                    std::cout << "Using Gouraud lighting\r" << std::endl;
-                }
-                break;
-
             case GLFW_KEY_ESCAPE:
                 if      (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -80,7 +71,7 @@ void mouse_callback(GLFWwindow* window, double x, double y) {
 
     if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL) return;
 
-      xOffset *= MOUSE_SENSITIVITY;
+    xOffset *= MOUSE_SENSITIVITY;
     yOffset *= MOUSE_SENSITIVITY;
 
     camera.yaw   += xOffset;
@@ -143,47 +134,48 @@ int main() {
     // ------------------------------------------------------------------------------------------------ vertex data & buffers
 
     float verts[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-        0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        // positions          // normals           // texture coords
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-        0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
     unsigned int VBO, VAO;
@@ -202,12 +194,16 @@ int main() {
 
     // vertices
     //                    location, size, type,     normalised, stride,            pointer
-    glVertexAttribPointer(0,        3,    GL_FLOAT, GL_FALSE,   6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0,        3,    GL_FLOAT, GL_FALSE,   8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // normals
-    glVertexAttribPointer(1,        3,    GL_FLOAT, GL_FALSE,   6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1,        3,    GL_FLOAT, GL_FALSE,   8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    // tex coords 
+    glVertexAttribPointer(2,        2,    GL_FLOAT, GL_FALSE,   8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     // unbind our VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -241,8 +237,8 @@ int main() {
     glGenTextures(1, &texture1);
     glGenTextures(1, &texture2);
 
-    loadImage("awesomeface.png", GL_RGBA, texture1);
-    loadImage("alfie.jpg",       GL_RGB,  texture2);
+    loadImage("awesomeface.png",   GL_RGBA, texture1);
+    loadImage("awesomeface_e.png", GL_RGBA,  texture2);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
@@ -251,14 +247,11 @@ int main() {
 
     Shader shader = Shader("src/shaders/default.vert", "src/shaders/default.frag");
 
-    Shader gouraudLitShader   = Shader("src/shaders/gouraud/gouraud.vert", "src/shaders/gouraud/litobject.frag");
-    Shader gouraudLightShader = Shader("src/shaders/default.vert",         "src/shaders/gouraud/light.frag");
-
     Shader phongLitShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
     Shader phongLightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
 
-    Shader litShader   = gouraudLitShader;
-    Shader lightShader = gouraudLightShader;
+    Shader litShader   = phongLitShader;
+    Shader lightShader = phongLightShader;
 
     shader.use();
     shader.setInt("texture1", 0);
@@ -268,39 +261,41 @@ int main() {
     while(!glfwWindowShouldClose(window)) { // self-explanatory - this is our render loop :)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
-        if (phong) {
-            litShader   = phongLitShader;
-            lightShader = phongLightShader;
-        } else {
-            litShader   = gouraudLitShader;
-            lightShader = gouraudLightShader;
-        }
-
         glm::mat4 view = glm::lookAt(camera.pos,  // position
                                      camera.pos + camera.front,  // target
                                      CAMERA_UP); // up
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 
         int w = 0, h = 0;
         glfwGetWindowSize(window, &w, &h);
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)(w/h), 0.1f, 100.0f);
 
-        glm::vec3 lightColor  = glm::vec3(1.0f, 1.0f, 0.6f);
+        glm::vec3 lightColor  = glm::vec3(
+            ((sin(glfwGetTime()) + 1) / 2) * 0.25,
+            ((sin(glfwGetTime()) + 1) / 2) * 0.9,
+            ((sin(glfwGetTime()) + 1) / 2) * 0.6
+            );
         glm::vec3 lightPos    = glm::vec3(3.6f, 0.0f, -3.6f);
-//        lightPos *= glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
-        glm::vec3 objectColor = glm::vec3(0.0f, 0.1f, 1.0f);
+        lightPos *= glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
 
         litShader.use();
-        litShader.setMat4("view", view);
-        litShader.setMat4("model", model);
+        litShader.setMat4("view",       view);
+        litShader.setMat4("model",      model);
         litShader.setMat4("projection", projection);
-        litShader.setVec3("lightColor", lightColor);
-        litShader.setVec3("objectColor", objectColor);
-        litShader.setVec3("lightPos", lightPos);
-        litShader.setVec3("viewPos", camera.pos);
+        litShader.setVec3("viewPos",    camera.pos);
+
+        litShader.setInt("material.diffuse",  0);
+        litShader.setInt("material.specular", 0);
+        litShader.setInt("material.emission", 1);
+        litShader.setFloat("material.shininess", 32.0);
+
+        litShader.setVec3("light.position", lightPos);
+        litShader.setVec3("light.ambient",  glm::vec3(0.2));
+        litShader.setVec3("light.diffuse",  lightColor);
+        litShader.setVec3("light.specular", glm::vec3(1.0));
 
         glBindVertexArray(VAO);
 
@@ -308,7 +303,7 @@ int main() {
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, lightPos);
-        //model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
+        model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
 
         lightShader.use();
         lightShader.setMat4("view", view);

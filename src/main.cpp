@@ -326,7 +326,10 @@ int main() {
         litShader.setInt("material.emission", 1);
         litShader.setFloat("material.shininess", 32.0);
 
-        litShader.setVec3("light.position",   lightPos);
+        litShader.setVec3("light.position",   camera.pos);
+        litShader.setVec3("light.direction",  camera.front);
+        litShader.setFloat("light.innerCone", cos(glm::radians(25.0f)));
+        litShader.setFloat("light.outerCone", cos(glm::radians(35.0f)));
         litShader.setVec3("light.ambient",    glm::vec3(0.0));
         litShader.setVec3("light.diffuse",    lightColor);
         litShader.setVec3("light.specular",   glm::vec3(1.0));
@@ -344,8 +347,6 @@ int main() {
             model = glm::translate(model, cubePositions[i]);
 
             litShader.setMat4("model", model);
-            litShader.setVec3("light.position", lightPositions[i]);
-            litShader.setVec3("light.diffuse",  lightColors[i]);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

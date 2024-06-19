@@ -28,11 +28,27 @@ struct PointLight {
   float quadratic;
 };
 
+struct SpotLight {
+  vec3 position;
+  vec3 direction;
+  float innerCone;
+  float outerCone;
+
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+
+  /* attentuation */
+  float constant;
+  float linear;
+  float quadratic;
+};
+
 uniform vec3       lightColor;
 uniform vec3       lightPos;
 uniform vec3       viewPos;
 uniform Material   material;
-uniform PointLight light;
+uniform SpotLight light;
 
 in vec3 normal;
 in vec3 fragPos;
@@ -41,27 +57,40 @@ in vec2 texCoords;
 out vec4 fragColor;
 
 void main() {
+    vec3 surfaceToLight = normalize(light.position - fragPos);
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, texCoords));
 
-    vec3 surfaceToLight = normalize(light.position - fragPos);
-    vec3 diffuse = (max(dot(normal, surfaceToLight), 0.0)) * light.diffuse * vec3(texture(material.diffuse, texCoords));
 
-    vec3 viewDir = normalize(viewPos - fragPos);
-    vec3 reflectDir = reflect(-surfaceToLight, normal);
+    float theta = dot(surfaceToLight, normalize(-light.direction));
+    if (theta > light.outerCone) {
+        vec3 diffuse = (max(dot(normal, surfaceToLight), 0.0)) * light.diffuse * vec3(texture(material.diffuse, texCoords));
 
-    vec3 specularMap = vec3(texture(material.specular, texCoords));
-    float grayscale = (specularMap.x + specularMap.y + specularMap.z) / 3;
+        vec3 viewDir = normalize(viewPos - fragPos);
+        vec3 reflectDir = reflect(-surfaceToLight, normal);
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = (vec3(texture(material.specular, texCoords)) * grayscale * spec) * light.specular;
+        vec3 specularMap = vec3(texture(material.specular, texCoords));
+        float grayscale = (specularMap.x + specularMap.y + specularMap.z) / 3;
 
-    vec3 emission = vec3(texture(material.emission, texCoords));
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        vec3 specular = (vec3(texture(material.specular, texCoords)) * grayscale * spec) * light.specular;
 
-    float dist  = length(light.position - fragPos);
-    float atten = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+        vec3 emission = vec3(texture(material.emission, texCoords));
 
-    ambient  *= atten;
-    diffuse  *= atten;
-    specular *= atten;
-    fragColor = vec4(ambient + diffuse + specular, 1.0);
+        float dist  = length(light.position - fragPos);
+        float atten = 1.0 / (light.constant + light.linear * dist + light.quadratic * (dist * dist));
+
+        ambient  *= atten;
+        diffuse  *= atten;
+        specular *= atten;
+
+        float epsilon   = light.innerCone - light.outerCone;
+        float intensity = clamp((theta - light.outerCone) / epsilon, 0.0, 1.0);
+
+        diffuse *= intensity;
+        specular *= intensity;
+
+        fragColor = vec4(ambient + diffuse + specular, 1.0);
+    } else {
+        fragColor = vec4(ambient * vec3(texture(material.diffuse, texCoords)), 1.0);
+    }
 }

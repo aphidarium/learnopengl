@@ -191,6 +191,32 @@ int main() {
         glm::vec3(-1.3f,  1.0f, -1.5f)
     };
 
+    glm::vec3 lightPositions[] = {
+        glm::vec3( 1.0f, -1.0f,  1.0f),
+        glm::vec3( 1.0f, -1.0f, -1.0f),
+        glm::vec3( 1.0f,  1.0f, -1.0f),
+        glm::vec3( 1.0f,  1.0f,  1.0f),
+        glm::vec3(-1.0f,  1.0f,  1.0f),
+        glm::vec3(-1.0f, -1.0f,  1.0f),
+        glm::vec3(-1.0f, -1.0f, -1.0f),
+        glm::vec3(-1.0f,  1.0f, -1.0f),
+        glm::vec3( 0.0f,  1.0f,  0.0f),
+        glm::vec3( 0.0f, -1.0f,  0.0f)
+    };
+
+    glm::vec3 lightColors[] = {
+        glm::vec3(0.732f, 0.214f, 0.348f), // Burgundy
+        glm::vec3(0.298f, 0.588f, 0.824f), // Light Blue
+        glm::vec3(0.988f, 0.733f, 0.098f), // Gold
+        glm::vec3(0.0f, 0.769f, 0.0f), // Green
+        glm::vec3(0.855f, 0.439f, 0.878f), // Light Pink
+        glm::vec3(0.545f, 0.271f, 0.075f), // Brown
+        glm::vec3(0.937f, 0.910f, 0.863f), // Light Yellow
+        glm::vec3(0.388f, 0.294f, 0.329f), // Dark Plum
+        glm::vec3(0.0f, 0.0f, 0.0f),       // Black
+        glm::vec3(1.0f, 1.0f, 1.0f),       // White
+    };
+
     unsigned int VBO, VAO;
 
     glGenVertexArrays(1, &VAO); // generate our VAO
@@ -282,9 +308,7 @@ int main() {
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 1.0f));
 
-        int w = 0, h = 0;
-        glfwGetWindowSize(window, &w, &h);
-        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)(w/h), 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)(16/9), 0.1f, 100.0f);
 
         glm::vec3 lightColor  = glm::vec3(1);
         glm::vec3 lightPos = glm::vec3(3.6f, 0.0f, -3.6f);
@@ -302,10 +326,13 @@ int main() {
         litShader.setInt("material.emission", 1);
         litShader.setFloat("material.shininess", 32.0);
 
-        litShader.setVec3("light.direction", lightDir);
-        litShader.setVec3("light.ambient",  glm::vec3(0.0));
-        litShader.setVec3("light.diffuse",  lightColor);
-        litShader.setVec3("light.specular", glm::vec3(1.0));
+        litShader.setVec3("light.position",   lightPos);
+        litShader.setVec3("light.ambient",    glm::vec3(0.0));
+        litShader.setVec3("light.diffuse",    lightColor);
+        litShader.setVec3("light.specular",   glm::vec3(1.0));
+        litShader.setFloat("light.constant",  1.0f);
+        litShader.setFloat("light.linear",    0.09f);
+        litShader.setFloat("light.quadratic", 0.032f);
 
         glBindVertexArray(VAO);
 
@@ -317,6 +344,8 @@ int main() {
             model = glm::translate(model, cubePositions[i]);
 
             litShader.setMat4("model", model);
+            litShader.setVec3("light.position", lightPositions[i]);
+            litShader.setVec3("light.diffuse",  lightColors[i]);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }

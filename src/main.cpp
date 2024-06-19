@@ -178,6 +178,19 @@ int main() {
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
     unsigned int VBO, VAO;
 
     glGenVertexArrays(1, &VAO); // generate our VAO
@@ -237,7 +250,7 @@ int main() {
     glGenTextures(1, &texture1);
     glGenTextures(1, &texture2);
 
-    loadImage("awesomeface.png",   GL_RGBA, texture1);
+    loadImage("alfie.jpg",   GL_RGB, texture1);
     loadImage("awesomeface_e.png", GL_RGBA,  texture2);
 
     glActiveTexture(GL_TEXTURE0);
@@ -257,13 +270,13 @@ int main() {
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
 
-    glClearColor(0.4f, 0.6f, 0.84f, 1.0f); // state setting function
-    while(!glfwWindowShouldClose(window)) { // self-explanatory - this is our render loop :)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    while(!glfwWindowShouldClose(window)) { 
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 view = glm::lookAt(camera.pos,  // position
-                                     camera.pos + camera.front,  // target
-                                     CAMERA_UP); // up
+        glm::mat4 view = glm::lookAt(camera.pos,
+                                     camera.pos + camera.front,
+                                     CAMERA_UP);
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
@@ -273,12 +286,9 @@ int main() {
         glfwGetWindowSize(window, &w, &h);
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)(w/h), 0.1f, 100.0f);
 
-        glm::vec3 lightColor  = glm::vec3(
-            ((sin(glfwGetTime()) + 1) / 2) * 0.25,
-            ((sin(glfwGetTime()) + 1) / 2) * 0.9,
-            ((sin(glfwGetTime()) + 1) / 2) * 0.6
-            );
-        glm::vec3 lightPos    = glm::vec3(3.6f, 0.0f, -3.6f);
+        glm::vec3 lightColor  = glm::vec3(1);
+        glm::vec3 lightPos = glm::vec3(3.6f, 0.0f, -3.6f);
+        glm::vec3 lightDir = glm::vec3(-0.2f, -1.0f, -0.3f);
         lightPos *= glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
 
         litShader.use();
@@ -292,26 +302,36 @@ int main() {
         litShader.setInt("material.emission", 1);
         litShader.setFloat("material.shininess", 32.0);
 
-        litShader.setVec3("light.position", lightPos);
-        litShader.setVec3("light.ambient",  glm::vec3(0.2));
+        litShader.setVec3("light.direction", lightDir);
+        litShader.setVec3("light.ambient",  glm::vec3(0.0));
         litShader.setVec3("light.diffuse",  lightColor);
         litShader.setVec3("light.specular", glm::vec3(1.0));
 
         glBindVertexArray(VAO);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (int i = 0; i < 10; i++) {
+            model = glm::mat4(1.0f);
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
+            float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0f));
+            model = glm::translate(model, cubePositions[i]);
 
-        lightShader.use();
-        lightShader.setMat4("view", view);
-        lightShader.setMat4("model", model);
-        lightShader.setMat4("projection", projection);
-        lightShader.setVec3("lightColor", lightColor);
+            litShader.setMat4("model", model);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+//        model = glm::mat4(1.0f);
+//        model = glm::translate(model, lightPos);
+//        model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
+//
+//        lightShader.use();
+//        lightShader.setMat4("view", view);
+//        lightShader.setMat4("model", model);
+//        lightShader.setMat4("projection", projection);
+//        lightShader.setVec3("lightColor", lightColor);
+//
+//        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glBindVertexArray(0);
 

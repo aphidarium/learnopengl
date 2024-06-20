@@ -29,7 +29,7 @@ struct {
 } camera;
 
 bool _w = false, _a = false, _s = false, _d = false;
-bool phong = true;
+bool flashlight = false;
 
 // we should also define a callback function for if/when the user changes the width/height of the window
 // GLFW can do this for us
@@ -44,6 +44,15 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             case GLFW_KEY_S: _s = true; break;
             case GLFW_KEY_A: _a = true; break;
             case GLFW_KEY_D: _d = true; break;
+
+            case GLFW_KEY_F:
+                flashlight = !flashlight;
+                if (flashlight) {
+                  std::cout << "Flashlight on" << std::endl;
+                } else {
+                  std::cout << "Flashlight off" << std::endl;
+                }
+                break;
 
             case GLFW_KEY_ESCAPE:
                 if      (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_NORMAL)
@@ -326,18 +335,38 @@ int main() {
         litShader.setInt("material.emission", 1);
         litShader.setFloat("material.shininess", 32.0);
 
-        litShader.setVec3("light.position",   camera.pos);
-        litShader.setVec3("light.direction",  camera.front);
-        litShader.setFloat("light.innerCone", cos(glm::radians(25.0f)));
-        litShader.setFloat("light.outerCone", cos(glm::radians(35.0f)));
-        litShader.setVec3("light.ambient",    glm::vec3(0.0));
-        litShader.setVec3("light.diffuse",    lightColor);
-        litShader.setVec3("light.specular",   glm::vec3(1.0));
-        litShader.setFloat("light.constant",  1.0f);
-        litShader.setFloat("light.linear",    0.09f);
-        litShader.setFloat("light.quadratic", 0.032f);
+        if (flashlight) {
+            litShader.setInt("usingFlashlight", 1);
+            litShader.setVec3("light.position",   camera.pos);
+            litShader.setVec3("light.direction",  camera.front);
+            litShader.setFloat("light.innerCone", cos(glm::radians(5.0f)));
+            litShader.setFloat("light.outerCone", cos(glm::radians(35.0f)));
+            litShader.setVec3("light.ambient",    glm::vec3(0.0));
+            litShader.setVec3("light.diffuse",    lightColor);
+            litShader.setVec3("light.specular",   glm::vec3(1.0));
+            litShader.setFloat("light.constant",  1.0f);
+            litShader.setFloat("light.linear",    0.05f);
+            litShader.setFloat("light.quadratic", 0.032f);
+        } else {
+            litShader.setInt("usingFlashlight", 0);
+        }
+
+        litShader.setVec3("dirLight.direction", glm::vec3(-0.1f, -0.5f, -0.3f));
+        litShader.setVec3("dirLight.ambient",   glm::vec3(0.0));
+        litShader.setVec3("dirLight.diffuse",   glm::vec3(0.5, 0.6, 0.3));
+        litShader.setVec3("dirLight.specular",  glm::vec3(1.0));
 
         glBindVertexArray(VAO);
+
+        for (int i = 0; i < 10; i++) {
+          litShader.setVec3("pointLights[" + std::to_string(i) + "].position", lightPositions[i]);
+          litShader.setVec3("pointLights[" + std::to_string(i) + "].ambient",  glm::vec3(0));
+          litShader.setVec3("pointLights[" + std::to_string(i) + "].diffuse",  lightColors[i]);
+          litShader.setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(1.0));
+          litShader.setFloat("pointLights[" + std::to_string(i) + "].constant",  1.0f);
+          litShader.setFloat("pointLights[" + std::to_string(i) + "].linear",    0.05f);
+          litShader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
+        }
 
         for (int i = 0; i < 10; i++) {
             model = glm::mat4(1.0f);

@@ -44,16 +44,14 @@ struct SpotLight {
   float quadratic;
 };
 
-uniform vec3       lightColor;
-uniform vec3       lightPos;
 uniform vec3       viewPos;
 uniform Material   material;
 
 uniform bool usingFlashlight;
 uniform DirectionalLight dirLight;
 uniform SpotLight light;
-#define POINT_LIGHT_AMOUNTS 8
-uniform PointLight pointLights[POINT_LIGHT_AMOUNTS];
+uniform PointLight pointLights[64];
+uniform int pointLightAmount;
 
 in vec3 normal;
 in vec3 fragPos;
@@ -143,9 +141,8 @@ void main() {
     if (usingFlashlight)
       result += calcSpotLighting(light, normal, viewDir);
 
-    for (int i = 0; i < POINT_LIGHT_AMOUNTS; i++)
+    for (int i = 0; i < pointLightAmount; i++)
       result += calcPointLighting(pointLights[i], normal, fragPos, viewDir);
 
     fragColor = vec4(result, 1.0f);
-    
 }

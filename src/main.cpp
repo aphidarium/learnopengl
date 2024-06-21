@@ -12,6 +12,7 @@
 
 #include "shader.h"
 #include "model.h"
+#include "sprite.h"
 
 #define CAMERA_UP         glm::vec3(0.0f, 1.0f, 0.0f)
 #define MOUSE_SENSITIVITY 0.1f
@@ -19,6 +20,8 @@
 #define MAX_FOV     104.0f
 #define MIN_FOV     1.0f
 #define DEFAULT_FOV 60.0f
+
+#define TWO_PI 6.28319
 
 struct {
     glm::vec3 pos   = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -50,19 +53,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             case GLFW_KEY_A: _a = true; break;
             case GLFW_KEY_D: _d = true; break;
 
-            case GLFW_KEY_F:
-                flashlight = !flashlight;
-                if (flashlight) {
-                  std::cout << "Flashlight on" << std::endl;
-                } else {
-                  std::cout << "Flashlight off" << std::endl;
-                }
-                break;
+            case GLFW_KEY_F: flashlight = !flashlight; break;
 
             case GLFW_KEY_LEFT_SHIFT:
                 camera.slow = false;
                 camera.fast = true;
-                std::cout << camera.fast << std::endl;
                 break;
 
             case GLFW_KEY_LEFT_CONTROL:
@@ -166,9 +161,9 @@ int main() {
     glViewport(0, 0, 800, 600);
     glEnable(GL_DEPTH_TEST);
 
-    // ------------------------------------------------------------------------------------------------ vertex data & buffers
+    Model backpack = Model("assets/backpack.obj");
 
-    Model backpack = Model("backpack.obj");
+    Sprite sprite = Sprite("assets/lightbulb.png", glm::vec3(1.0, 1.0, 0.0));
 
     glm::vec3 cubePositions[] = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
@@ -209,17 +204,13 @@ int main() {
         glm::vec3(1.0f, 1.0f, 1.0f),       // White
     };
 
-    Shader shader = Shader("src/shaders/default.vert", "src/shaders/default.frag");
+    Shader spriteShader = Shader("src/shaders/sprite/sprite.vert", "src/shaders/sprite/sprite.frag");
 
     Shader phongLitShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
     Shader phongLightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
 
     Shader litShader   = phongLitShader;
     Shader lightShader = phongLightShader;
-
-    shader.use();
-    shader.setInt("texture1", 0);
-    shader.setInt("texture2", 1);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     while(!glfwWindowShouldClose(window)) { 
@@ -246,10 +237,6 @@ int main() {
         litShader.setMat4("projection", projection);
         litShader.setVec3("viewPos",    camera.pos);
 
-        litShader.setInt("material.diffuse",  0);
-        litShader.setInt("material.specular", 0);
-        litShader.setInt("material.emission", 1);
-
         litShader.setInt("usingFlashlight",   flashlight);
         if (flashlight) {
             litShader.setVec3("light.position",   camera.pos);
@@ -266,10 +253,12 @@ int main() {
 
         litShader.setVec3("dirLight.direction", glm::vec3(-0.1f, -0.5f, -0.3f));
         litShader.setVec3("dirLight.ambient",   glm::vec3(0.0));
-        litShader.setVec3("dirLight.diffuse",   glm::vec3(0.5, 0.6, 0.3));
+        litShader.setVec3("dirLight.diffuse",   glm::vec3(0.98, 0.95, 0.84));
         litShader.setVec3("dirLight.specular",  glm::vec3(1.0));
 
-        for (int i = 0; i < 10; i++) {
+        uint pointLightAmount = 0;
+        litShader.setInt("pointLightAmount", pointLightAmount);
+        for (int i = 0; i < pointLightAmount; i++) {
           litShader.setVec3("pointLights[" + std::to_string(i) + "].position", lightPositions[i]);
           litShader.setVec3("pointLights[" + std::to_string(i) + "].ambient",  glm::vec3(0));
           litShader.setVec3("pointLights[" + std::to_string(i) + "].diffuse",  lightColors[i] * glm::vec3(0.2f));
@@ -291,18 +280,27 @@ int main() {
             backpack.draw(litShader);
         }
 
-//        model = glm::mat4(1.0f);
-//        model = glm::translate(model, lightPos);
-//        model = glm::rotate(model, (float)(glfwGetTime()*0.75), glm::vec3(-1.0f, -0.3f, 0.2f));
-//
-//        lightShader.use();
-//        lightShader.setMat4("view", view);
-//        lightShader.setMat4("model", model);
-//        lightShader.setMat4("projection", projection);
-//        lightShader.setVec3("lightColor", lightColor);
-//
-        glfwSwapBuffers(window);            // double buffered rendering
-        glfwPollEvents();                   // check for keyboard, mouse inputs etc.
+        spriteShader.use();
+        spriteShader.setMat4("view",       view);
+        spriteShader.setMat4("projection", projection);
+        spriteShader.setVec3("viewPos",    camera.pos);
+
+        glm::vec3 worldCamUp  = glm::vec3(view[0][1], view[1][1], view[2][1]);
+        glm::vec3 camPosition = glm::vec3(camera.pos.x, camera.pos.y, -camera.pos.z);
+        for (int i = 0; i < pointLightAmount; i++) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, lightPositions[i]);
+//            model = glm::lookAt(
+//                glm::vec3(glm::vec3(0, 0, 0)),                        /* position */
+//                glm::vec3(camera.pos.x, camera.pos.y, -camera.pos.z), /* target */
+//                glm::vec3(view[0][1], view[1][1], view[2][1])         /* up vector */ 
+//            );
+            spriteShader.setMat4("model", model);
+            sprite.draw(spriteShader);
+        }
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
         playerMovement();
     }
 

@@ -4,7 +4,6 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "stb_image.h"
 #include "mesh.h"
 
 class Model {
@@ -33,7 +32,7 @@ void Model::draw(Shader &shader) {
 
 void Model::loadModel(std::string path) {
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate);
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
     std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
@@ -41,6 +40,7 @@ void Model::loadModel(std::string path) {
   }
 
   directory = path.substr(0, path.find_last_of('/'));
+  std::cout << directory << std::endl;
 
   processNode(scene->mRootNode, scene);
 }
@@ -105,39 +105,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName) {
-
-  // stbi_set_flip_vertically_on_load(true);
-  auto loadImage = [this](std::string file){
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    int width, height, nrChannels;
-    std::cout << directory << "/" << file << std::endl;
-    unsigned char* data = stbi_load((file).c_str(), &width, &height, &nrChannels, 0);
-
-    if (data) {
-        GLenum format;
-        if      (nrChannels == 1) format = GL_RED;
-        else if (nrChannels == 3) format = GL_RGB;
-        else if (nrChannels == 4) format = GL_RGBA;
-
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    } else {
-        std::cout << "Failed to load image '" << file << "'" << std::endl;
-    }
-
-    stbi_image_free(data);
-    return texture;
-  };
-
   std::vector<Texture> textures;
   for (uint i = 0; i < mat->GetTextureCount(type); i++) {
     aiString str;
@@ -152,7 +119,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
     }
     if (!textureAlreadyLoaded) {
       Texture texture;
-      texture.id = loadImage(str.C_Str());
+      texture.id = loadTexture(directory + "/" + str.C_Str());
       texture.type = typeName;
       texture.path = str.C_Str();
       textures.push_back(texture);

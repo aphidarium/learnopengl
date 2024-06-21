@@ -13,6 +13,9 @@
 #include "shader.h"
 #include "model.h"
 #include "sprite.h"
+#include "entity/light/directionalLight.h"
+#include "entity/light/pointLight.h"
+#include "entity/light/spotLight.h"
 
 #define CAMERA_UP         glm::vec3(0.0f, 1.0f, 0.0f)
 #define MOUSE_SENSITIVITY 0.1f
@@ -100,15 +103,15 @@ void mouse_callback(GLFWwindow* window, double x, double y) {
     camera.yaw   += xOffset;
     camera.pitch += yOffset;
 
-    if (camera.pitch > 89.0f) {
-        camera.pitch = 89.0f;
+    if (camera.pitch > 90.0f) {
+        camera.pitch = 90.0f;
     }
-    else if (camera.pitch < -89.0f) {
-        camera.pitch = -89.0f;
+    else if (camera.pitch < -90.0f) {
+        camera.pitch = -90.0f;
     }
 
     glm::vec3 dir;
-    dir.x = cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+    dir.x = cos(glm::radians(camera.yaw)); 
     dir.y = sin(glm::radians(camera.pitch));
     dir.z = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
     camera.front = dir;
@@ -204,21 +207,27 @@ int main() {
         glm::vec3(1.0f, 1.0f, 1.0f),       // White
     };
 
-    Shader spriteShader = Shader("src/shaders/sprite/sprite.vert", "src/shaders/sprite/sprite.frag");
 
-    Shader phongLitShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
-    Shader phongLightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
+    Shader litShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
+    //Shader lightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
+    //Shader spriteShader = Shader("src/shaders/sprite/sprite.vert", "src/shaders/sprite/sprite.frag");
 
-    Shader litShader   = phongLitShader;
-    Shader lightShader = phongLightShader;
+    DirectionalLight dirLight = DirectionalLight(glm::vec3(-0.1f, -0.5f, -0.3f), glm::vec3(0.0f), glm::vec3(0.98f, 0.95f, 0.84f), glm::vec3(1.0f));
+
+    std::vector<PointLight> pointLights;
+    for (uint i = 0; i < 10; i++) {
+      PointLight p = PointLight(lightPositions[i], glm::vec3(0.0f), lightColors[i] * glm::vec3(0.2f), glm::vec3(1.0f));
+      pointLights.push_back(p);
+    }
+
+    std::vector<SpotLight> spotLights;
+    SpotLight flashlightLight = SpotLight(camera.pos, camera.front, 5.0f, 35.0f, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0));
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     while(!glfwWindowShouldClose(window)) { 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 view = glm::lookAt(camera.pos,
-                                     camera.pos + camera.front,
-                                     CAMERA_UP);
+        glm::mat4 view = glm::lookAt(camera.pos, camera.pos + camera.front, CAMERA_UP);
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
@@ -226,47 +235,26 @@ int main() {
 
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)(16/9), 0.1f, 100.0f);
 
-        glm::vec3 lightColor  = glm::vec3(1);
-        glm::vec3 lightPos = glm::vec3(3.6f, 0.0f, -3.6f);
-        glm::vec3 lightDir = glm::vec3(-0.2f, -1.0f, -0.3f);
-        lightPos *= glm::vec3(sin(glfwGetTime()), 1.0f, cos(glfwGetTime()));
-
         litShader.use();
         litShader.setMat4("view",       view);
         litShader.setMat4("model",      model);
         litShader.setMat4("projection", projection);
         litShader.setVec3("viewPos",    camera.pos);
 
-        litShader.setInt("usingFlashlight",   flashlight);
-        if (flashlight) {
-            litShader.setVec3("light.position",   camera.pos);
-            litShader.setVec3("light.direction",  camera.front);
-            litShader.setFloat("light.innerCone", cos(glm::radians(5.0f)));
-            litShader.setFloat("light.outerCone", cos(glm::radians(35.0f)));
-            litShader.setVec3("light.ambient",    glm::vec3(0.0));
-            litShader.setVec3("light.diffuse",    lightColor);
-            litShader.setVec3("light.specular",   glm::vec3(1.0));
-            litShader.setFloat("light.constant",  1.0f);
-            litShader.setFloat("light.linear",    0.05f);
-            litShader.setFloat("light.quadratic", 0.032f);
-        }
+        dirLight.addToShader(litShader);
 
-        litShader.setVec3("dirLight.direction", glm::vec3(-0.1f, -0.5f, -0.3f));
-        litShader.setVec3("dirLight.ambient",   glm::vec3(0.0));
-        litShader.setVec3("dirLight.diffuse",   glm::vec3(0.98, 0.95, 0.84));
-        litShader.setVec3("dirLight.specular",  glm::vec3(1.0));
+        litShader.setInt("spotLightAmount", spotLights.size());
+        for (uint i = 0; i < spotLights.size(); i++)
+          spotLights[i].addToShader(litShader);
 
-        uint pointLightAmount = 0;
-        litShader.setInt("pointLightAmount", pointLightAmount);
-        for (int i = 0; i < pointLightAmount; i++) {
-          litShader.setVec3("pointLights[" + std::to_string(i) + "].position", lightPositions[i]);
-          litShader.setVec3("pointLights[" + std::to_string(i) + "].ambient",  glm::vec3(0));
-          litShader.setVec3("pointLights[" + std::to_string(i) + "].diffuse",  lightColors[i] * glm::vec3(0.2f));
-          litShader.setVec3("pointLights[" + std::to_string(i) + "].specular", glm::vec3(1.0));
-          litShader.setFloat("pointLights[" + std::to_string(i) + "].constant",  1.0f);
-          litShader.setFloat("pointLights[" + std::to_string(i) + "].linear",    0.05f);
-          litShader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
-        }
+        litShader.setInt("usingFlashlight", flashlight);
+        flashlightLight.setPosition(camera.pos);
+        flashlightLight.setDirection(camera.front);
+        if (flashlight) flashlightLight.addToShader(litShader, "flashlight");
+
+        litShader.setInt("pointLightAmount", (int)pointLights.size());
+        for (uint i = 0; i < pointLights.size(); i++)
+          pointLights[i].addToShader(litShader, i);
 
         for (int i = 0; i < 10; i++) {
             model = glm::mat4(1.0f);
@@ -274,29 +262,9 @@ int main() {
             float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0f));
             model = glm::translate(model, cubePositions[i]);
-            litShader.setFloat("material.shininess", pow(2, i+2));
 
             litShader.setMat4("model", model);
             backpack.draw(litShader);
-        }
-
-        spriteShader.use();
-        spriteShader.setMat4("view",       view);
-        spriteShader.setMat4("projection", projection);
-        spriteShader.setVec3("viewPos",    camera.pos);
-
-        glm::vec3 worldCamUp  = glm::vec3(view[0][1], view[1][1], view[2][1]);
-        glm::vec3 camPosition = glm::vec3(camera.pos.x, camera.pos.y, -camera.pos.z);
-        for (int i = 0; i < pointLightAmount; i++) {
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, lightPositions[i]);
-//            model = glm::lookAt(
-//                glm::vec3(glm::vec3(0, 0, 0)),                        /* position */
-//                glm::vec3(camera.pos.x, camera.pos.y, -camera.pos.z), /* target */
-//                glm::vec3(view[0][1], view[1][1], view[2][1])         /* up vector */ 
-//            );
-            spriteShader.setMat4("model", model);
-            sprite.draw(spriteShader);
         }
 
         glfwSwapBuffers(window);

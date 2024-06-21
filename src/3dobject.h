@@ -5,13 +5,16 @@
 
 class 3DObject: public Entity() {
   public:
-    3DObject(glm::vec3 position);
+    3DObject(glm::vec3 position, std::string modelFilepath);
 
     void draw();
 
   private:
-    Mesh _mesh;
+    Model _model;
 }
 
+3DObject::3DObject(glm::vec3 position, std::string modelFilepath);
+  : _position(position), _model(Model(modelFilepath)) {
+}
 
 #endif /* 3DOBJECT_H */

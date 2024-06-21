@@ -47,11 +47,16 @@ struct SpotLight {
 uniform vec3       viewPos;
 uniform Material   material;
 
-uniform bool usingFlashlight;
 uniform DirectionalLight dirLight;
-uniform SpotLight light;
-uniform PointLight pointLights[64];
+
+uniform bool usingFlashlight;
+uniform SpotLight flashlight;
+
+uniform int spotLightAmount; 
+uniform SpotLight spotLights[16];
+
 uniform int pointLightAmount;
+uniform PointLight pointLights[16];
 
 in vec3 normal;
 in vec3 fragPos;
@@ -137,12 +142,16 @@ void main() {
     vec3 viewDir = normalize(viewPos - fragPos);
 
     vec3 result = vec3(0);
+
     result += calcDirectionalLighting(dirLight, normal, viewDir);
-    if (usingFlashlight)
-      result += calcSpotLighting(light, normal, viewDir);
+
+    for (int i = 0; i < spotLightAmount; i++)
+      result += calcSpotLighting(spotLights[i], normal, viewDir);
 
     for (int i = 0; i < pointLightAmount; i++)
       result += calcPointLighting(pointLights[i], normal, fragPos, viewDir);
 
-    fragColor = vec4(result, 1.0f);
+    if (usingFlashlight) result += calcSpotLighting(flashlight, normal, viewDir);
+
+    gl_FragColor = vec4(result, 1.0f);
 }

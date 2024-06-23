@@ -76,7 +76,7 @@ vec3 calcDirectionalLighting(DirectionalLight light, vec3 normal, vec3 viewDir) 
     vec3 diffuse  = light.diffuse * diff * vec3((texture(material.diffuse, texCoords)));
     vec3 specular = light.specular * spec * vec3((texture(material.specular, texCoords)));
 
-    return (ambient + diffuse + specular);
+    return (diffuse + specular);
 }
 
 vec3 calcPointLighting(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
@@ -145,11 +145,11 @@ void main() {
 
     result += calcDirectionalLighting(dirLight, normal, viewDir);
 
-    for (int i = 0; i < spotLightAmount; i++)
-      result += calcSpotLighting(spotLights[i], normal, viewDir);
-
-    for (int i = 0; i < pointLightAmount; i++)
-      result += calcPointLighting(pointLights[i], normal, fragPos, viewDir);
+//    for (int i = 0; i < spotLightAmount; i++)
+//      result += calcSpotLighting(spotLights[i], normal, viewDir);
+//
+//    for (int i = 0; i < pointLightAmount; i++)
+//      result += calcPointLighting(pointLights[i], normal, fragPos, viewDir);
 
     if (usingFlashlight) result += calcSpotLighting(flashlight, normal, viewDir);
 

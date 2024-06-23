@@ -103,15 +103,15 @@ void mouse_callback(GLFWwindow* window, double x, double y) {
     camera.yaw   += xOffset;
     camera.pitch += yOffset;
 
-    if (camera.pitch > 90.0f) {
-        camera.pitch = 90.0f;
+    if (camera.pitch > 89.9f) {
+        camera.pitch = 89.9f;
     }
-    else if (camera.pitch < -90.0f) {
-        camera.pitch = -90.0f;
+    else if (camera.pitch < -89.9f) {
+        camera.pitch = -89.9f;
     }
 
     glm::vec3 dir;
-    dir.x = cos(glm::radians(camera.yaw)); 
+    dir.x = cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
     dir.y = sin(glm::radians(camera.pitch));
     dir.z = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
     camera.front = dir;
@@ -164,7 +164,7 @@ int main() {
     glViewport(0, 0, 800, 600);
     glEnable(GL_DEPTH_TEST);
 
-    Model backpack = Model("assets/backpack.obj");
+    Model backpack = Model("assets/asteroid.obj");
 
     Sprite sprite = Sprite("assets/lightbulb.png", glm::vec3(1.0, 1.0, 0.0));
 
@@ -207,15 +207,15 @@ int main() {
         glm::vec3(1.0f, 1.0f, 1.0f),       // White
     };
 
-
     Shader litShader   = Shader("src/shaders/default.vert", "src/shaders/phong/litobject.frag");
     //Shader lightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
     //Shader spriteShader = Shader("src/shaders/sprite/sprite.vert", "src/shaders/sprite/sprite.frag");
 
     DirectionalLight dirLight = DirectionalLight(glm::vec3(-0.1f, -0.5f, -0.3f), glm::vec3(0.0f), glm::vec3(0.98f, 0.95f, 0.84f), glm::vec3(1.0f));
+    dirLight.setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
 
     std::vector<PointLight> pointLights;
-    for (uint i = 0; i < 10; i++) {
+    for (uint i = 0; i < 0; i++) {
       PointLight p = PointLight(lightPositions[i], glm::vec3(0.0f), lightColors[i] * glm::vec3(0.2f), glm::vec3(1.0f));
       pointLights.push_back(p);
     }
@@ -256,7 +256,8 @@ int main() {
         for (uint i = 0; i < pointLights.size(); i++)
           pointLights[i].addToShader(litShader, i);
 
-        for (int i = 0; i < 10; i++) {
+        litShader.setFloat("material.shininess", 32);
+        for (int i = 0; i < 1; i++) {
             model = glm::mat4(1.0f);
 
             float angle = 20.0f * i;

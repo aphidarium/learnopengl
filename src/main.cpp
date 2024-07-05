@@ -13,6 +13,7 @@
 #include "shader.h"
 #include "model.h"
 #include "sprite.h"
+#include "entity/prop.h"
 #include "entity/light/directionalLight.h"
 #include "entity/light/pointLight.h"
 #include "entity/light/spotLight.h"
@@ -164,7 +165,11 @@ int main() {
     glViewport(0, 0, 800, 600);
     glEnable(GL_DEPTH_TEST);
 
-    Model backpack = Model("assets/asteroid.obj");
+    Prop asteroid1 = Prop(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), "assets/asteroid1.obj");
+    Prop asteroid2 = Prop(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), "assets/asteroid2.obj");
+    Prop asteroid3 = Prop(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), "assets/asteroid3.obj");
+
+    //Model backpack = Model("assets/asteroid.obj");
 
     Sprite sprite = Sprite("assets/lightbulb.png", glm::vec3(1.0, 1.0, 0.0));
 
@@ -257,16 +262,24 @@ int main() {
           pointLights[i].addToShader(litShader, i);
 
         litShader.setFloat("material.shininess", 32);
-        for (int i = 0; i < 1; i++) {
-            model = glm::mat4(1.0f);
 
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0, 0.0, 1.0f));
-            model = glm::translate(model, cubePositions[i]);
+        // ---------- ASTEROIDS
 
-            litShader.setMat4("model", model);
-            backpack.draw(litShader);
-        }
+        asteroid1.setRotationX(glfwGetTime() / 100);
+        asteroid1.setRotationY(glfwGetTime() / 64);
+        asteroid1.setPosition(sin(glfwGetTime() / 190) * 24, 0.0f, cos(glfwGetTime() / 174) * 20);
+        asteroid1.draw(litShader);
+
+        asteroid2.setRotationX(glfwGetTime() / 92);
+        asteroid2.setRotationY(glfwGetTime() / 54);
+        asteroid2.setRotationZ(sin(glfwGetTime()/64) / 2);
+        asteroid2.setPosition(sin(glfwGetTime() / 95) * 3.4f, sin(glfwGetTime() / 75) * 3.4f, -5.0f);
+        asteroid2.draw(litShader);
+
+        asteroid3.setRotationX(glfwGetTime() / 100);
+        asteroid3.setRotationY(glfwGetTime() / 64);
+        asteroid3.setPosition(-sin(glfwGetTime() / 140) * 18, 0.0f, -cos(glfwGetTime() / 134) * 12);
+        asteroid3.draw(litShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

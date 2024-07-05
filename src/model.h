@@ -8,7 +8,7 @@
 
 class Model {
   public:
-    Model(char* path) {
+    Model(std::string path) {
       loadModel(path);
     }
 
@@ -40,7 +40,6 @@ void Model::loadModel(std::string path) {
   }
 
   directory = path.substr(0, path.find_last_of('/'));
-  std::cout << directory << std::endl;
 
   processNode(scene->mRootNode, scene);
 }

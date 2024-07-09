@@ -216,7 +216,7 @@ int main() {
     //Shader lightShader = Shader("src/shaders/default.vert", "src/shaders/phong/light.frag");
     //Shader spriteShader = Shader("src/shaders/sprite/sprite.vert", "src/shaders/sprite/sprite.frag");
 
-    DirectionalLight dirLight = DirectionalLight(glm::vec3(-0.1f, -0.5f, -0.3f), glm::vec3(0.0f), glm::vec3(0.98f, 0.95f, 0.84f), glm::vec3(1.0f));
+    DirectionalLight dirLight = DirectionalLight(glm::vec3(-0.1f, -0.5f, -0.3f), glm::vec3(0.16f, 0.09f, 0.21f), glm::vec3(0.98f, 0.95f, 0.84f), glm::vec3(1.0f));
     dirLight.setDirection(glm::vec3(0.0f, -1.0f, 0.0f));
 
     std::vector<PointLight> pointLights;
@@ -228,7 +228,8 @@ int main() {
     std::vector<SpotLight> spotLights;
     SpotLight flashlightLight = SpotLight(camera.pos, camera.front, 5.0f, 35.0f, glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0));
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_CULL_FACE);
+    glClearColor(0.16f, 0.09f, 0.21f, 1.0f);
     while(!glfwWindowShouldClose(window)) { 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

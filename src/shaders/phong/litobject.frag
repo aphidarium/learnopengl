@@ -76,7 +76,7 @@ vec3 calcDirectionalLighting(DirectionalLight light, vec3 normal, vec3 viewDir) 
     vec3 diffuse  = light.diffuse * diff * vec3((texture(material.diffuse, texCoords)));
     vec3 specular = light.specular * spec * vec3((texture(material.specular, texCoords)));
 
-    return (diffuse + specular);
+    return (ambient + diffuse + specular);
 }
 
 vec3 calcPointLighting(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir) {
